@@ -61,7 +61,7 @@ const upload = multer({
     const allowedTypes = /jpeg|jpg|png|gif|svg|pdf/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
-    
+
     if (mimetype && extname) {
       return cb(null, true);
     } else {
@@ -71,6 +71,30 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check
+  app.get("/api/health", (req, res) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
+  // Get all projects
+  app.get("/api/projects", async (req, res) => {
+    try {
+      const allProjects = await storage.getProjects()
+      res.json(allProjects);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch projects" });
+    }
+  });
+
+  // Get all categories
+  app.get("/api/categories", async (req, res) => {
+    try {
+      const categories = await storage.getDocumentCategories()
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch categories" });
+    }
+  });
   // Initialize database with admin user
   await seedDatabase();
 
@@ -90,7 +114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/login', async (req, res) => {
     try {
       const { username, password } = req.body;
-      
+
       if (!username || !password) {
         return res.status(400).json({ error: 'نام کاربری و رمز عبور الزامی است' });
       }
@@ -132,7 +156,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/register', async (req, res) => {
     try {
       const { username, password, name, email } = req.body;
-      
+
       if (!username || !password || !name || !email) {
         return res.status(400).json({ error: 'تمام فیلدها الزامی هستند' });
       }
@@ -447,7 +471,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const documentData = req.body;
       const document = await storage.updateDocument(id, documentData);
-      
+
       if (!document) {
         return res.status(404).json({ message: "Document not found" });
       }
@@ -469,7 +493,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const success = await storage.deleteDocument(id);
-      
+
       if (!success) {
         return res.status(404).json({ message: "Document not found" });
       }
@@ -881,8 +905,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/webinars/:id", async (req, res) => {
-    const id = parseInt(req.params.id);
+  app.delete("/api/webinars/:id", async (req, res) => {    const id = parseInt(req.params.id);
 
     if (isNaN(id)) {
       return res.status(400).json({ message: "Invalid webinar ID" });
@@ -946,11 +969,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         webinarId
       });
       const updatedSection = await storage.updateWebinarSection(sectionId, sectionData);
-      
+
       if (!updatedSection) {
         return res.status(404).json({ message: "Section not found" });
       }
-      
+
       res.json(updatedSection);
     } catch (error) {
       if (error instanceof ZodError) {
@@ -971,11 +994,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const deleted = await storage.deleteWebinarSection(sectionId);
-      
+
       if (!deleted) {
         return res.status(404).json({ message: "Section not found" });
       }
-      
+
       res.json({ message: "بخش با موفقیت حذف شد" });
     } catch (error) {
       return res.status(500).json({ message: "خطا در حذف بخش وبینار" });
@@ -1091,7 +1114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const itemData = insertQuickAccessItemSchema.parse(req.body);
       const item = await storage.updateQuickAccessItem(id, itemData);
-      
+
       if (!item) {
         return res.status(404).json({ message: "Item not found" });
       }
@@ -1124,14 +1147,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Protection Control Endpoints
   app.patch("/api/courses/:id/protection", async (req, res) => {
     const id = parseInt(req.params.id);
-    
+
     if (isNaN(id)) {
       return res.status(400).json({ message: "Invalid course ID" });
     }
 
     try {
       const updatedCourse = await storage.updateCourseProtection(id, req.body);
-      
+
       if (!updatedCourse) {
         return res.status(404).json({ message: "Course not found" });
       }
@@ -1144,14 +1167,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/projects/:id/protection", async (req, res) => {
     const id = parseInt(req.params.id);
-    
+
     if (isNaN(id)) {
       return res.status(400).json({ message: "Invalid project ID" });
     }
 
     try {
       const updatedProject = await storage.updateProjectProtection(id, req.body);
-      
+
       if (!updatedProject) {
         return res.status(404).json({ message: "Project not found" });
       }
@@ -1164,14 +1187,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/documents/:id/protection", async (req, res) => {
     const id = parseInt(req.params.id);
-    
+
     if (isNaN(id)) {
       return res.status(400).json({ message: "Invalid document ID" });
     }
 
     try {
       const updatedDocument = await storage.updateDocumentProtection(id, req.body);
-      
+
       if (!updatedDocument) {
         return res.status(404).json({ message: "Document not found" });
       }
@@ -1184,14 +1207,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/magazines/:id/protection", async (req, res) => {
     const id = parseInt(req.params.id);
-    
+
     if (isNaN(id)) {
       return res.status(400).json({ message: "Invalid magazine ID" });
     }
 
     try {
       const updatedMagazine = await storage.updateMagazineProtection(id, req.body);
-      
+
       if (!updatedMagazine) {
         return res.status(404).json({ message: "Magazine not found" });
       }

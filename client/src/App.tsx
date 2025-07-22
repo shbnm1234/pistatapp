@@ -295,3 +295,42 @@ function App() {
 }
 
 export default App;
+import { Router, Route, Switch } from "wouter";
+import { useAuth } from "./hooks/useAuth";
+import Home from "./pages/home";
+import Login from "./pages/login";
+import Register from "./pages/register";
+import Courses from "./pages/courses";
+import Projects from "./pages/projects";
+import Library from "./pages/library";
+import Profile from "./pages/profile";
+import AdminApp from "./pages/admin-app";
+import NotFound from "./pages/not-found";
+
+export default function App() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  return (
+    <Router>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/login" component={Login} />
+        <Route path="/register" component={Register} />
+        <Route path="/courses" component={Courses} />
+        <Route path="/projects" component={Projects} />
+        <Route path="/library" component={Library} />
+        <Route path="/profile" component={Profile} />
+        <Route path="/admin" component={AdminApp} />
+        <Route component={NotFound} />
+      </Switch>
+    </Router>
+  );
+}

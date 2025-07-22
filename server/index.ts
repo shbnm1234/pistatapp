@@ -56,11 +56,7 @@ app.use((req, res, next) => {
   // Serve the app on PORT environment variable (for Render) or fallback to 5000 (for Replit)
   // this serves both the API and the client.
   const port = process.env.PORT || 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
+  server.listen(port, "0.0.0.0", () => {
+    log(`🚀 Server running on http://0.0.0.0:${port}`);
   });
 })();
