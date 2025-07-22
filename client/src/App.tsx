@@ -245,7 +245,7 @@ function App() {
                   </div>
                 </div>
               )}
-              
+
               <div className="flex justify-around py-2">
                 <NavButton
                   id="home"
@@ -283,7 +283,7 @@ function App() {
             </div>
           )}
         </div>
-        
+
         {/* Search Modal */}
         <SearchModal 
           isOpen={showSearchModal} 
@@ -294,43 +294,101 @@ function App() {
   );
 }
 
-export default App;
-import { Router, Route, Switch } from "wouter";
-import { useAuth } from "./hooks/useAuth";
-import Home from "./pages/home";
-import Login from "./pages/login";
-import Register from "./pages/register";
-import Courses from "./pages/courses";
-import Projects from "./pages/projects";
-import Library from "./pages/library";
-import Profile from "./pages/profile";
-import AdminApp from "./pages/admin-app";
-import NotFound from "./pages/not-found";
+// Simple App Component for fast loading
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { 
+  BookOpen, 
+  FileText, 
+  Video, 
+  Users,
+  Award,
+  Clock,
+  Download,
+  Eye,
+  ChevronRight,
+  Search,
+  Menu,
+  X,
+  User,
+  Settings,
+  LogOut
+} from 'lucide-react';
 
-export default function App() {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+function SimpleApp() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <Router>
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/login" component={Login} />
-        <Route path="/register" component={Register} />
-        <Route path="/courses" component={Courses} />
-        <Route path="/projects" component={Projects} />
-        <Route path="/library" component={Library} />
-        <Route path="/profile" component={Profile} />
-        <Route path="/admin" component={AdminApp} />
-        <Route component={NotFound} />
-      </Switch>
-    </Router>
+    
+      
+        
+          
+            <BookOpen className="mr-2 h-4 w-4" />
+            Courses
+          
+          
+            <FileText className="mr-2 h-4 w-4" />
+            Projects
+          
+          
+            <Video className="mr-2 h-4 w-4" />
+            Webinars
+          
+          
+            <Users className="mr-2 h-4 w-4" />
+            Community
+          
+        
+      
+
+      
+        
+          
+            
+              
+                Dashboard
+              
+              
+                Manage and monitor your data.
+              
+            
+          
+          
+            
+              
+                Analytics
+              
+              
+                Gain insights into your business.
+              
+            
+          
+          
+            
+              
+                Reports
+              
+              
+                Generate detailed reports.
+              
+            
+          
+          
+            
+              
+                Settings
+              
+              
+                Configure your preferences.
+              
+            
+          
+        
+      
+    
   );
 }
+
+export default App;
