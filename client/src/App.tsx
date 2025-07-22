@@ -64,8 +64,8 @@ function App() {
         setActiveTab('home');
       } else if (event.data.type === 'SWITCH_TAB') {
         setActiveTab(event.data.tab);
-        setSelectedWebinarId(null); // Reset webinar view when switching tabs
-        setSelectedMagazineId(null); // Reset magazine view when switching tabs
+        setSelectedWebinarId(null);
+        setSelectedMagazineId(null);
       } else if (event.data.type === 'OPEN_WEBINAR') {
         setSelectedWebinarId(event.data.webinarId);
         setActiveTab('webinar');
@@ -74,7 +74,6 @@ function App() {
         setActiveTab('magazine');
       } else if (event.data.type === 'NAVIGATE_TO_ADMIN') {
         setActiveTab('admin');
-        // Send message to admin page to switch to specific tab
         setTimeout(() => {
           window.postMessage({ type: 'ADMIN_TAB_SWITCH', tab: event.data.tab }, '*');
         }, 100);
@@ -129,7 +128,6 @@ function App() {
   };
 
   const renderCurrentPage = () => {
-    // Check if user is admin and redirect to admin panel
     if (isAuthenticated && user?.role === 'admin' && activeTab !== 'admin') {
       setActiveTab('admin');
       return <AdminPage />;
@@ -186,7 +184,7 @@ function App() {
             {renderCurrentPage()}
           </div>
 
-          {/* Bottom Navigation - Hide in admin, webinar and magazine mode */}
+          {/* Bottom Navigation */}
           {activeTab !== 'admin' && activeTab !== 'webinar' && activeTab !== 'magazine' && activeTab !== 'about-us' && activeTab !== 'contact-us' && (
             <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-gray-200 shadow-2xl">
               {/* Categories Menu */}
@@ -284,110 +282,12 @@ function App() {
           )}
         </div>
 
-        {/* Search Modal */}
         <SearchModal 
           isOpen={showSearchModal} 
           onClose={() => setShowSearchModal(false)} 
         />
       </Router>
     </QueryClientProvider>
-  );
-}
-
-// Simple App Component for fast loading
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
-  BookOpen, 
-  FileText, 
-  Video, 
-  Users,
-  Award,
-  Clock,
-  Download,
-  Eye,
-  ChevronRight,
-  Search,
-  Menu,
-  X,
-  User,
-  Settings,
-  LogOut
-} from 'lucide-react';
-
-function SimpleApp() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  return (
-    
-      
-        
-          
-            <BookOpen className="mr-2 h-4 w-4" />
-            Courses
-          
-          
-            <FileText className="mr-2 h-4 w-4" />
-            Projects
-          
-          
-            <Video className="mr-2 h-4 w-4" />
-            Webinars
-          
-          
-            <Users className="mr-2 h-4 w-4" />
-            Community
-          
-        
-      
-
-      
-        
-          
-            
-              
-                Dashboard
-              
-              
-                Manage and monitor your data.
-              
-            
-          
-          
-            
-              
-                Analytics
-              
-              
-                Gain insights into your business.
-              
-            
-          
-          
-            
-              
-                Reports
-              
-              
-                Generate detailed reports.
-              
-            
-          
-          
-            
-              
-                Settings
-              
-              
-                Configure your preferences.
-              
-            
-          
-        
-      
-    
   );
 }
 
