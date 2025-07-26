@@ -28,6 +28,13 @@ export default function Home() {
     queryKey: ['/api/slides/active'] 
   });
 
+  const { 
+    data: quickAccessItems = [], 
+    isLoading: isLoadingQuickAccess 
+  } = useQuery<any[]>({ 
+    queryKey: ['/api/quick-access'] 
+  });
+
   // Filter courses with progress > 0 for "Continue Learning" section
   const continueLearningCourses = courses.filter(course => course.progress && course.progress > 0);
 
@@ -161,37 +168,75 @@ export default function Home() {
 
         <div className="overflow-x-auto scrollbar-hide">
           <div className="flex gap-4" style={{ width: 'max-content' }}>
-            <Link href="/magazine" className="bg-white rounded-xl shadow-sm p-6 text-center flex-shrink-0 hover:shadow-md transition-shadow cursor-pointer" style={{ width: '200px' }}>
-              <div className="bg-green-100 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="h-8 w-8 text-green-500" />
-              </div>
-              <h3 className="text-lg font-semibold text-neutral-700 mb-2">فصلنامه رویش سبز</h3>
-              <p className="text-neutral-500 text-sm">مطالعه آخرین شماره فصلنامه</p>
-            </Link>
-            
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="bg-white rounded-xl shadow-sm p-6 text-center flex-shrink-0 hover:shadow-md transition-shadow cursor-pointer" style={{ width: '200px' }}>
-              <div className="bg-orange-100 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
-                <GraduationCap className="h-8 w-8 text-orange-500" />
-              </div>
-              <h3 className="text-lg font-semibold text-neutral-700 mb-2">ویدیوهای آموزشی</h3>
-              <p className="text-neutral-500 text-sm">مشاهده کانال اینستاگرام پیستاط</p>
-            </a>
-            
-            <Link href="/library" className="bg-white rounded-xl shadow-sm p-6 text-center flex-shrink-0 hover:shadow-md transition-shadow cursor-pointer" style={{ width: '200px' }}>
-              <div className="bg-purple-100 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
-                <Book className="h-8 w-8 text-purple-500" />
-              </div>
-              <h3 className="text-lg font-semibold text-neutral-700 mb-2">کتابخانه</h3>
-              <p className="text-neutral-500 text-sm">مطالعه مقالات و راهنماها</p>
-            </Link>
-            
-            <Link href="/contact" className="bg-white rounded-xl shadow-sm p-6 text-center flex-shrink-0 hover:shadow-md transition-shadow cursor-pointer" style={{ width: '200px' }}>
-              <div className="bg-blue-100 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8 text-blue-500" />
-              </div>
-              <h3 className="text-lg font-semibold text-neutral-700 mb-2">تماس با ما</h3>
-              <p className="text-neutral-500 text-sm">ارتباط با تیم پشتیبانی</p>
-            </Link>
+            {isLoadingQuickAccess ? (
+              Array(4).fill(0).map((_, i) => (
+                <div key={i} className="bg-white rounded-xl shadow-sm p-6 text-center flex-shrink-0" style={{ width: '200px' }}>
+                  <div className="bg-gray-200 rounded-full h-16 w-16 mx-auto mb-4 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-2 animate-pulse"></div>
+                  <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              ))
+            ) : quickAccessItems.length > 0 ? (
+              quickAccessItems.sort((a, b) => a.order - b.order).map((item) => (
+                <a 
+                  key={item.id}
+                  href={item.linkUrl} 
+                  target={item.linkUrl.startsWith('http') ? '_blank' : undefined}
+                  rel={item.linkUrl.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  className="bg-white rounded-xl shadow-sm p-6 text-center flex-shrink-0 hover:shadow-md transition-shadow cursor-pointer" 
+                  style={{ width: '200px' }}
+                >
+                  <div className="bg-green-100 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
+                    {item.iconUrl ? (
+                      <img 
+                        src={item.iconUrl} 
+                        alt={item.title}
+                        className="h-8 w-8 object-contain"
+                      />
+                    ) : (
+                      <BookOpen className="h-8 w-8 text-green-500" />
+                    )}
+                  </div>
+                  <h3 className="text-lg font-semibold text-neutral-700 mb-2">{item.title}</h3>
+                  <p className="text-neutral-500 text-sm">{item.description || item.title}</p>
+                </a>
+              ))
+            ) : (
+              /* Fallback default items */
+              <>
+                <Link href="/magazine" className="bg-white rounded-xl shadow-sm p-6 text-center flex-shrink-0 hover:shadow-md transition-shadow cursor-pointer" style={{ width: '200px' }}>
+                  <div className="bg-green-100 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
+                    <BookOpen className="h-8 w-8 text-green-500" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-neutral-700 mb-2">فصلنامه رویش سبز</h3>
+                  <p className="text-neutral-500 text-sm">مطالعه آخرین شماره فصلنامه</p>
+                </Link>
+                
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="bg-white rounded-xl shadow-sm p-6 text-center flex-shrink-0 hover:shadow-md transition-shadow cursor-pointer" style={{ width: '200px' }}>
+                  <div className="bg-orange-100 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
+                    <GraduationCap className="h-8 w-8 text-orange-500" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-neutral-700 mb-2">ویدیوهای آموزشی</h3>
+                  <p className="text-neutral-500 text-sm">مشاهده کانال اینستاگرام پیستاط</p>
+                </a>
+                
+                <Link href="/library" className="bg-white rounded-xl shadow-sm p-6 text-center flex-shrink-0 hover:shadow-md transition-shadow cursor-pointer" style={{ width: '200px' }}>
+                  <div className="bg-purple-100 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
+                    <Book className="h-8 w-8 text-purple-500" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-neutral-700 mb-2">کتابخانه</h3>
+                  <p className="text-neutral-500 text-sm">مطالعه مقالات و راهنماها</p>
+                </Link>
+                
+                <Link href="/contact" className="bg-white rounded-xl shadow-sm p-6 text-center flex-shrink-0 hover:shadow-md transition-shadow cursor-pointer" style={{ width: '200px' }}>
+                  <div className="bg-blue-100 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
+                    <Users className="h-8 w-8 text-blue-500" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-neutral-700 mb-2">تماس با ما</h3>
+                  <p className="text-neutral-500 text-sm">ارتباط با تیم پشتیبانی</p>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
