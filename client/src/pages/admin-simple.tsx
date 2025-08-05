@@ -25,9 +25,12 @@ export default function AdminPage() {
                 { id: "projects", label: "پروژه‌ها", icon: Folder },
                 { id: "documents", label: "اسناد", icon: File },
                 { id: "workshops", label: "کارگاه‌ها", icon: RefreshCw },
+                { id: "webinars", label: "وبینارها", icon: Users },
+                { id: "educationalvideos", label: "ویدیوهای آموزشی", icon: Video },
                 { id: "slides", label: "اسلایدها", icon: Image },
                 { id: "quickaccess", label: "دسترسی سریع", icon: Zap },
                 { id: "magazines", label: "مجله‌ها", icon: Calendar },
+                { id: "articles", label: "مقاله‌ها", icon: File },
                 { id: "media", label: "کتابخانه رسانه", icon: Upload },
                 { id: "aboutus", label: "درباره ما", icon: Building },
                 { id: "contactus", label: "تماس با ما", icon: Phone },
@@ -61,9 +64,12 @@ export default function AdminPage() {
               {activeTab === "projects" && "پروژه‌ها"}
               {activeTab === "documents" && "اسناد"}
               {activeTab === "workshops" && "کارگاه‌های آموزشی"}
+              {activeTab === "webinars" && "وبینارهای آموزشی"}
+              {activeTab === "educationalvideos" && "ویدیوهای آموزشی"}
               {activeTab === "slides" && "اسلایدهای صفحه اصلی"}
               {activeTab === "quickaccess" && "مدیریت منوی دسترسی سریع"}
               {activeTab === "magazines" && "مجله‌ها"}
+              {activeTab === "articles" && "مقاله‌ها"}
               {activeTab === "media" && "کتابخانه رسانه"}
               {activeTab === "aboutus" && "درباره ما"}
               {activeTab === "contactus" && "تماس با ما"}
@@ -76,9 +82,12 @@ export default function AdminPage() {
             {activeTab === "projects" && <ProjectsTab />}
             {activeTab === "documents" && <DocumentsTab />}
             {activeTab === "workshops" && <WorkshopsTab />}
+            {activeTab === "webinars" && <WebinarsTab />}
+            {activeTab === "educationalvideos" && <EducationalVideosTab />}
             {activeTab === "slides" && <SlidesTab />}
             {activeTab === "quickaccess" && <QuickAccessTab />}
             {activeTab === "magazines" && <MagazinesTab />}
+            {activeTab === "articles" && <ArticlesTab />}
             {activeTab === "media" && <MediaTab />}
             {activeTab === "aboutus" && <AboutUsTab />}
             {activeTab === "contactus" && <ContactUsTab />}
@@ -1491,7 +1500,10 @@ function AboutUsTab() {
 
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
-      return await apiRequest('/api/about-us', 'POST', data);
+      return await apiRequest('/api/about-us', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/about-us'] });
@@ -1502,7 +1514,10 @@ function AboutUsTab() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      return await apiRequest(`/api/about-us/${id}`, 'PUT', data);
+      return await apiRequest(`/api/about-us/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/about-us'] });
@@ -1513,7 +1528,9 @@ function AboutUsTab() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      return await apiRequest(`/api/about-us/${id}`, 'DELETE');
+      return await apiRequest(`/api/about-us/${id}`, {
+        method: 'DELETE',
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/about-us'] });
@@ -1733,6 +1750,762 @@ function AboutUsTab() {
   );
 }
 
+function WebinarsTab() {
+  const [showForm, setShowForm] = useState(false);
+  const [editingItem, setEditingItem] = useState<any>(null);
+
+  const { data: webinars, isLoading } = useQuery<any[]>({
+    queryKey: ['/api/webinars'],
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return await apiRequest('/api/webinars', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/webinars'] });
+      setShowForm(false);
+      setEditingItem(null);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      return await apiRequest(`/api/webinars/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/webinars'] });
+      setShowForm(false);
+      setEditingItem(null);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return await apiRequest(`/api/webinars/${id}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/webinars'] });
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const data = {
+      title: formData.get('title'),
+      description: formData.get('description'),
+      posterUrl: formData.get('posterUrl'),
+      eventDate: formData.get('eventDate'),
+      instructor: formData.get('instructor'),
+      duration: formData.get('duration'),
+      level: formData.get('level'),
+      category: formData.get('category'),
+      price: parseInt(formData.get('price') as string) || 0,
+      maxParticipants: parseInt(formData.get('maxParticipants') as string) || 0,
+      imageUrl: formData.get('imageUrl'),
+      isActive: formData.get('isActive') === 'on',
+    };
+
+    if (editingItem) {
+      updateMutation.mutate({ id: editingItem.id, data });
+    } else {
+      createMutation.mutate(data);
+    }
+  };
+
+  if (isLoading) {
+    return <div className="p-8 text-center">در حال بارگذاری...</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg border">
+        <div className="p-4 border-b flex items-center justify-between">
+          <h3 className="text-lg font-semibold">مدیریت وبینارها</h3>
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            <Plus className="h-4 w-4" />
+            افزودن وبینار
+          </button>
+        </div>
+
+        {showForm && (
+          <div className="p-4 border-b bg-gray-50">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">عنوان</label>
+                  <input
+                    name="title"
+                    type="text"
+                    defaultValue={editingItem?.title || ''}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">مدرس</label>
+                  <input
+                    name="instructor"
+                    type="text"
+                    defaultValue={editingItem?.instructor || ''}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">توضیحات</label>
+                <textarea
+                  name="description"
+                  defaultValue={editingItem?.description || ''}
+                  rows={3}
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">تاریخ برگزاری</label>
+                  <input
+                    name="eventDate"
+                    type="date"
+                    defaultValue={editingItem?.eventDate || ''}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">مدت زمان</label>
+                  <input
+                    name="duration"
+                    type="text"
+                    defaultValue={editingItem?.duration || ''}
+                    placeholder="۲ ساعت"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">سطح</label>
+                  <select
+                    name="level"
+                    defaultValue={editingItem?.level || ''}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">انتخاب کنید</option>
+                    <option value="مبتدی">مبتدی</option>
+                    <option value="متوسط">متوسط</option>
+                    <option value="پیشرفته">پیشرفته</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  name="isActive"
+                  type="checkbox"
+                  defaultChecked={editingItem?.isActive ?? true}
+                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                />
+                <label className="text-sm">فعال</label>
+              </div>
+
+              <div className="flex gap-2 justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowForm(false);
+                    setEditingItem(null);
+                  }}
+                  className="px-4 py-2 text-gray-600 border rounded-md hover:bg-gray-50"
+                >
+                  انصراف
+                </button>
+                <button
+                  type="submit"
+                  disabled={createMutation.isPending || updateMutation.isPending}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {createMutation.isPending || updateMutation.isPending ? 'در حال ذخیره...' : 'ذخیره'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        <div className="divide-y">
+          {webinars && webinars.map((item: any) => (
+            <div key={item.id} className="p-4 flex items-start justify-between">
+              <div className="flex-1">
+                <h4 className="font-medium text-lg">{item.title}</h4>
+                <p className="text-gray-600 mt-1">{item.description}</p>
+                <div className="mt-2 flex flex-wrap gap-2 text-sm text-gray-500">
+                  {item.instructor && <span>مدرس: {item.instructor}</span>}
+                  {item.eventDate && <span>تاریخ: {item.eventDate}</span>}
+                  {item.duration && <span>مدت: {item.duration}</span>}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${item.isActive ? 'bg-green-500' : 'bg-gray-300'}`} />
+                <button
+                  onClick={() => {
+                    setEditingItem(item);
+                    setShowForm(true);
+                  }}
+                  className="text-blue-600 hover:text-blue-800"
+                >
+                  <Edit className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => deleteMutation.mutate(item.id)}
+                  disabled={deleteMutation.isPending}
+                  className="text-red-600 hover:text-red-800 disabled:opacity-50"
+                >
+                  <Trash className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+          {(!webinars || webinars.length === 0) && (
+            <div className="p-8 text-center text-gray-500">
+              هیچ وبیناری یافت نشد. اولین وبینار را اضافه کنید.
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EducationalVideosTab() {
+  const [showForm, setShowForm] = useState(false);
+  const [editingItem, setEditingItem] = useState<any>(null);
+
+  const { data: videos, isLoading } = useQuery<any[]>({
+    queryKey: ['/api/educational-videos'],
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return await apiRequest('/api/educational-videos', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/educational-videos'] });
+      setShowForm(false);
+      setEditingItem(null);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      return await apiRequest(`/api/educational-videos/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/educational-videos'] });
+      setShowForm(false);
+      setEditingItem(null);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return await apiRequest(`/api/educational-videos/${id}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/educational-videos'] });
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const data = {
+      title: formData.get('title'),
+      description: formData.get('description'),
+      videoUrl: formData.get('videoUrl'),
+      thumbnailUrl: formData.get('thumbnailUrl'),
+      duration: formData.get('duration'),
+      category: formData.get('category'),
+      level: formData.get('level'),
+      instructor: formData.get('instructor'),
+      isActive: formData.get('isActive') === 'on',
+      isPublic: formData.get('isPublic') === 'on',
+      requiresSubscription: formData.get('requiresSubscription') === 'on',
+      orderPosition: parseInt(formData.get('orderPosition') as string) || 0,
+    };
+
+    if (editingItem) {
+      updateMutation.mutate({ id: editingItem.id, data });
+    } else {
+      createMutation.mutate(data);
+    }
+  };
+
+  if (isLoading) {
+    return <div className="p-8 text-center">در حال بارگذاری...</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg border">
+        <div className="p-4 border-b flex items-center justify-between">
+          <h3 className="text-lg font-semibold">مدیریت ویدیوهای آموزشی</h3>
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            <Plus className="h-4 w-4" />
+            افزودن ویدیو
+          </button>
+        </div>
+
+        {showForm && (
+          <div className="p-4 border-b bg-gray-50">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">عنوان</label>
+                  <input
+                    name="title"
+                    type="text"
+                    defaultValue={editingItem?.title || ''}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">مدرس</label>
+                  <input
+                    name="instructor"
+                    type="text"
+                    defaultValue={editingItem?.instructor || ''}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">توضیحات</label>
+                <textarea
+                  name="description"
+                  defaultValue={editingItem?.description || ''}
+                  rows={3}
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">لینک ویدیو</label>
+                  <input
+                    name="videoUrl"
+                    type="url"
+                    defaultValue={editingItem?.videoUrl || ''}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">تصویر کوچک</label>
+                  <input
+                    name="thumbnailUrl"
+                    type="url"
+                    defaultValue={editingItem?.thumbnailUrl || ''}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">مدت زمان</label>
+                  <input
+                    name="duration"
+                    type="text"
+                    defaultValue={editingItem?.duration || ''}
+                    placeholder="۱۰ دقیقه"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">دسته‌بندی</label>
+                  <input
+                    name="category"
+                    type="text"
+                    defaultValue={editingItem?.category || ''}
+                    placeholder="برنامه‌نویسی"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">سطح</label>
+                  <select
+                    name="level"
+                    defaultValue={editingItem?.level || 'beginner'}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="beginner">مبتدی</option>
+                    <option value="intermediate">متوسط</option>
+                    <option value="advanced">پیشرفته</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex items-center gap-2">
+                  <input
+                    name="isActive"
+                    type="checkbox"
+                    defaultChecked={editingItem?.isActive ?? true}
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <label className="text-sm">فعال</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    name="isPublic"
+                    type="checkbox"
+                    defaultChecked={editingItem?.isPublic ?? true}
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <label className="text-sm">عمومی</label>
+                </div>
+              </div>
+
+              <div className="flex gap-2 justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowForm(false);
+                    setEditingItem(null);
+                  }}
+                  className="px-4 py-2 text-gray-600 border rounded-md hover:bg-gray-50"
+                >
+                  انصراف
+                </button>
+                <button
+                  type="submit"
+                  disabled={createMutation.isPending || updateMutation.isPending}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {createMutation.isPending || updateMutation.isPending ? 'در حال ذخیره...' : 'ذخیره'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        <div className="divide-y">
+          {videos && videos.map((item: any) => (
+            <div key={item.id} className="p-4 flex items-start justify-between">
+              <div className="flex-1">
+                <h4 className="font-medium text-lg">{item.title}</h4>
+                <p className="text-gray-600 mt-1">{item.description}</p>
+                <div className="mt-2 flex flex-wrap gap-2 text-sm text-gray-500">
+                  {item.instructor && <span>مدرس: {item.instructor}</span>}
+                  {item.duration && <span>مدت: {item.duration}</span>}
+                  {item.category && <span>دسته: {item.category}</span>}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${item.isActive ? 'bg-green-500' : 'bg-gray-300'}`} />
+                <button
+                  onClick={() => {
+                    setEditingItem(item);
+                    setShowForm(true);
+                  }}
+                  className="text-blue-600 hover:text-blue-800"
+                >
+                  <Edit className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => deleteMutation.mutate(item.id)}
+                  disabled={deleteMutation.isPending}
+                  className="text-red-600 hover:text-red-800 disabled:opacity-50"
+                >
+                  <Trash className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+          {(!videos || videos.length === 0) && (
+            <div className="p-8 text-center text-gray-500">
+              هیچ ویدیویی یافت نشد. اولین ویدیو را اضافه کنید.
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ArticlesTab() {
+  const [showForm, setShowForm] = useState(false);
+  const [editingItem, setEditingItem] = useState<any>(null);
+
+  const { data: articles, isLoading } = useQuery<any[]>({
+    queryKey: ['/api/articles'],
+  });
+
+  const { data: magazines } = useQuery<any[]>({
+    queryKey: ['/api/magazines'],
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return await apiRequest('/api/articles', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/articles'] });
+      setShowForm(false);
+      setEditingItem(null);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      return await apiRequest(`/api/articles/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/articles'] });
+      setShowForm(false);
+      setEditingItem(null);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return await apiRequest(`/api/articles/${id}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/articles'] });
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const data = {
+      title: formData.get('title'),
+      author: formData.get('author'),
+      summary: formData.get('summary'),
+      content: formData.get('content'),
+      publishDate: formData.get('publishDate'),
+      featuredImageUrl: formData.get('featuredImageUrl'),
+      magazineId: parseInt(formData.get('magazineId') as string),
+      readTime: parseInt(formData.get('readTime') as string) || 0,
+      isPublished: formData.get('isPublished') === 'on',
+    };
+
+    if (editingItem) {
+      updateMutation.mutate({ id: editingItem.id, data });
+    } else {
+      createMutation.mutate(data);
+    }
+  };
+
+  if (isLoading) {
+    return <div className="p-8 text-center">در حال بارگذاری...</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg border">
+        <div className="p-4 border-b flex items-center justify-between">
+          <h3 className="text-lg font-semibold">مدیریت مقاله‌ها</h3>
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            <Plus className="h-4 w-4" />
+            افزودن مقاله
+          </button>
+        </div>
+
+        {showForm && (
+          <div className="p-4 border-b bg-gray-50">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">عنوان</label>
+                  <input
+                    name="title"
+                    type="text"
+                    defaultValue={editingItem?.title || ''}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">نویسنده</label>
+                  <input
+                    name="author"
+                    type="text"
+                    defaultValue={editingItem?.author || ''}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">خلاصه</label>
+                <textarea
+                  name="summary"
+                  defaultValue={editingItem?.summary || ''}
+                  rows={2}
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">محتوا</label>
+                <textarea
+                  name="content"
+                  defaultValue={editingItem?.content || ''}
+                  rows={6}
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">مجله</label>
+                  <select
+                    name="magazineId"
+                    defaultValue={editingItem?.magazineId || ''}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">انتخاب کنید</option>
+                    {magazines && magazines.map((magazine: any) => (
+                      <option key={magazine.id} value={magazine.id}>
+                        {magazine.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">تاریخ انتشار</label>
+                  <input
+                    name="publishDate"
+                    type="date"
+                    defaultValue={editingItem?.publishDate || ''}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">زمان مطالعه (دقیقه)</label>
+                  <input
+                    name="readTime"
+                    type="number"
+                    defaultValue={editingItem?.readTime || ''}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  name="isPublished"
+                  type="checkbox"
+                  defaultChecked={editingItem?.isPublished ?? true}
+                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                />
+                <label className="text-sm">منتشر شده</label>
+              </div>
+
+              <div className="flex gap-2 justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowForm(false);
+                    setEditingItem(null);
+                  }}
+                  className="px-4 py-2 text-gray-600 border rounded-md hover:bg-gray-50"
+                >
+                  انصراف
+                </button>
+                <button
+                  type="submit"
+                  disabled={createMutation.isPending || updateMutation.isPending}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {createMutation.isPending || updateMutation.isPending ? 'در حال ذخیره...' : 'ذخیره'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        <div className="divide-y">
+          {articles && articles.map((item: any) => (
+            <div key={item.id} className="p-4 flex items-start justify-between">
+              <div className="flex-1">
+                <h4 className="font-medium text-lg">{item.title}</h4>
+                <p className="text-gray-600 mt-1">{item.summary}</p>
+                <div className="mt-2 flex flex-wrap gap-2 text-sm text-gray-500">
+                  {item.author && <span>نویسنده: {item.author}</span>}
+                  {item.publishDate && <span>انتشار: {item.publishDate}</span>}
+                  {item.readTime && <span>مطالعه: {item.readTime} دقیقه</span>}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${item.isPublished ? 'bg-green-500' : 'bg-gray-300'}`} />
+                <button
+                  onClick={() => {
+                    setEditingItem(item);
+                    setShowForm(true);
+                  }}
+                  className="text-blue-600 hover:text-blue-800"
+                >
+                  <Edit className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => deleteMutation.mutate(item.id)}
+                  disabled={deleteMutation.isPending}
+                  className="text-red-600 hover:text-red-800 disabled:opacity-50"
+                >
+                  <Trash className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+          {(!articles || articles.length === 0) && (
+            <div className="p-8 text-center text-gray-500">
+              هیچ مقاله‌ای یافت نشد. اولین مقاله را اضافه کنید.
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ContactUsTab() {
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
@@ -1743,7 +2516,10 @@ function ContactUsTab() {
 
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
-      return await apiRequest('/api/contact-us', 'POST', data);
+      return await apiRequest('/api/contact-us', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/contact-us'] });
@@ -1754,7 +2530,10 @@ function ContactUsTab() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      return await apiRequest(`/api/contact-us/${id}`, 'PUT', data);
+      return await apiRequest(`/api/contact-us/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/contact-us'] });
@@ -1765,7 +2544,9 @@ function ContactUsTab() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      return await apiRequest(`/api/contact-us/${id}`, 'DELETE');
+      return await apiRequest(`/api/contact-us/${id}`, {
+        method: 'DELETE',
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/contact-us'] });

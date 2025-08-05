@@ -1606,6 +1606,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return res.json({ message: "Contact us deleted successfully" });
   });
 
+  // User Course Access API
+  app.get("/api/users/:userId/course-access", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    try {
+      const userAccess = await storage.getUserCourseAccess(userId);
+      res.json(userAccess);
+    } catch (error) {
+      console.error("Error fetching user course access:", error);
+      res.status(500).json({ message: "خطا در دریافت دسترسی‌های کاربر" });
+    }
+  });
+
+  app.post("/api/users/:userId/grant-course-access", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    try {
+      const { courseId, accessType, expiryDate } = req.body;
+      
+      const accessData = {
+        userId,
+        courseId: parseInt(courseId),
+        accessType,
+        expiryDate: expiryDate ? new Date(expiryDate).getTime() : undefined,
+        isActive: true
+      };
+
+      const access = await storage.grantCourseAccess(accessData);
+      res.status(201).json(access);
+    } catch (error) {
+      console.error("Error granting course access:", error);
+      res.status(500).json({ message: "خطا در اعطای دسترسی دوره" });
+    }
+  });
+
+  app.delete("/api/users/:userId/revoke-course-access/:courseId", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+    const courseId = parseInt(req.params.courseId);
+
+    if (isNaN(userId) || isNaN(courseId)) {
+      return res.status(400).json({ message: "Invalid user ID or course ID" });
+    }
+
+    try {
+      const success = await storage.revokeCourseAccess(userId, courseId);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Access not found" });
+      }
+
+      res.json({ message: "دسترسی با موفقیت لغو شد" });
+    } catch (error) {
+      console.error("Error revoking course access:", error);
+      res.status(500).json({ message: "خطا در لغو دسترسی دوره" });
+    }
+  });
+
   const server = createServer(app);
   return server;
 }
