@@ -58,5 +58,6 @@ app.use((req, res, next) => {
   const port = process.env.PORT || 5000;
   server.listen(port, "0.0.0.0", () => {
     log(`🚀 Server running on http://0.0.0.0:${port}`);
+    log(`🎯 Admin panel: http://0.0.0.0:${port}/admin-simple`);
   });
 })();

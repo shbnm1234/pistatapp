@@ -34,6 +34,7 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   upsertUser(user: any): Promise<User>;
+  getUsers(): Promise<User[]>;
 
   // Course methods
   getCourses(): Promise<Course[]>;
@@ -149,7 +150,7 @@ export interface IStorage {
   getCourseAccess(userId: number, courseId: number): Promise<UserCourseAccess | undefined>;
   grantCourseAccess(access: InsertUserCourseAccess): Promise<UserCourseAccess>;
   revokeCourseAccess(userId: number, courseId: number): Promise<boolean>;
-  
+
   // Permission check methods
   canAccessCourse(userId: number, courseId: number): Promise<boolean>;
   canDownloadContent(userId: number, courseId: number): Promise<boolean>;
@@ -210,11 +211,15 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  
+
   // User methods
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
+  }
+
+  async getUsers(): Promise<User[]> {
+    return await db.select().from(users);
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
@@ -843,24 +848,24 @@ export class DatabaseStorage implements IStorage {
   async canAccessCourse(userId: number, courseId: number): Promise<boolean> {
     const user = await this.getUser(userId);
     const course = await this.getCourse(courseId);
-    
+
     if (!user || !course) return false;
-    
+
     // Admin can access everything
     if (user.role === 'admin') return true;
-    
+
     // Free courses are accessible to everyone
     if (course.accessLevel === 'free') return true;
-    
+
     // Check user subscription status
     if (course.accessLevel === 'premium' && (user.subscriptionStatus === 'premium' || user.subscriptionStatus === 'vip')) {
       return true;
     }
-    
+
     if (course.accessLevel === 'vip' && user.subscriptionStatus === 'vip') {
       return true;
     }
-    
+
     // Check specific course access
     const access = await this.getCourseAccess(userId, courseId);
     return access ? (access.isActive ?? false) : false;
@@ -869,14 +874,14 @@ export class DatabaseStorage implements IStorage {
   async canDownloadContent(userId: number, courseId: number): Promise<boolean> {
     const user = await this.getUser(userId);
     if (!user) return false;
-    
+
     // Admin can download everything
     if (user.role === 'admin') return true;
-    
+
     // Check if user has access to the course first
     const hasAccess = await this.canAccessCourse(userId, courseId);
     if (!hasAccess) return false;
-    
+
     // Premium and VIP users can download
     return user.subscriptionStatus === 'premium' || user.subscriptionStatus === 'vip';
   }

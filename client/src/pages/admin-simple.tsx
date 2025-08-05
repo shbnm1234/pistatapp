@@ -1217,17 +1217,26 @@ function QuickAccessTab() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: any) => 
-      fetch('/api/quick-access', {
+    mutationFn: async (data: any) => {
+      const response = await fetch('/api/quick-access', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
-      }).then(res => res.json()),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/quick-access'] });
       setShowForm(false);
       setEditingItem(null);
     },
+    onError: (error) => {
+      console.error('Create error:', error);
+      alert('خطا در ایجاد آیتم: ' + error.message);
+    }
   });
 
   const updateMutation = useMutation({

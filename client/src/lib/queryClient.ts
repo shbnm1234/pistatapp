@@ -3,33 +3,34 @@ import { QueryClient } from '@tanstack/react-query';
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes
       queryFn: async ({ queryKey }) => {
-        const response = await fetch(queryKey[0] as string);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
+        const [url] = queryKey as [string];
+        return apiRequest(url);
       },
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
     },
   },
 });
 
-// API request helper
-export async function apiRequest(url: string, options: RequestInit = {}) {
-  const response = await fetch(url, {
+// API request helper function
+export async function apiRequest(endpoint: string, options: RequestInit = {}) {
+  const url = endpoint.startsWith('/api') ? endpoint : `/api${endpoint}`;
+
+  const config: RequestInit = {
     headers: {
       'Content-Type': 'application/json',
       ...options.headers,
     },
     ...options,
-  });
+  };
+
+  const response = await fetch(url, config);
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`${response.status}: ${errorText}`);
+    const error = await response.text();
+    throw new Error(error || `HTTP error! status: ${response.status}`);
   }
 
   return response.json();

@@ -76,6 +76,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
   });
 
+  // Test route for admin panel
+  app.get("/api/test", (req, res) => {
+    res.json({ message: "API is working!", timestamp: new Date().toISOString() });
+  });
+
   // Get all projects
   app.get("/api/projects", async (req, res) => {
     try {
@@ -93,6 +98,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(categories);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch categories" });
+    }
+  });
+
+  // Get all users for admin
+  app.get("/api/users", async (req, res) => {
+    try {
+      const users = await storage.getUsers();
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch users" });
     }
   });
   // Initialize database with admin user
