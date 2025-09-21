@@ -143,9 +143,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.session.user = {
         id: user.id,
         username: user.username,
-        role: user.role,
-        name: user.name,
-        email: user.email
+        role: user.role || 'user',
+        name: user.name || '',
+        email: user.email || ''
       };
 
       res.json({ 
@@ -204,9 +204,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.session.user = {
         id: user.id,
         username: user.username,
-        role: user.role,
-        name: user.name,
-        email: user.email
+        role: user.role || 'user',
+        name: user.name || '',
+        email: user.email || ''
       };
 
       res.json({ 
