@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Router } from 'wouter';
+import { Router, Route } from 'wouter';
 import HomePage from './pages/home-simple';
 import CoursesPage from './pages/courses-simple';
 import ProjectsPage from './pages/projects-simple';
@@ -51,6 +51,14 @@ interface NavButtonProps {
 function App() {
   const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('home');
+
+  // Check URL on load for direct admin access
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === '/admin-simple') {
+      setActiveTab('admin');
+    }
+  }, []);
   const [selectedWebinarId, setSelectedWebinarId] = useState<number | null>(null);
   const [selectedMagazineId, setSelectedMagazineId] = useState<number | null>(null);
   const [showCategoriesMenu, setShowCategoriesMenu] = useState(false);
@@ -130,7 +138,7 @@ function App() {
   const renderCurrentPage = () => {
     if (isAuthenticated && user?.role === 'admin' && activeTab !== 'admin') {
       setActiveTab('admin');
-      return <AdminPage />;
+      return <AdminSimple />;
     }
 
     switch (activeTab) {
@@ -149,7 +157,7 @@ function App() {
       case 'favorites': 
         return <AuthGuard><FavoritesPage /></AuthGuard>;
       case 'admin': 
-        return <AdminPage />;
+        return <AdminSimple />;
       case 'media-library': 
         return <AuthGuard><MediaLibraryPage /></AuthGuard>;
       case 'webinar': 

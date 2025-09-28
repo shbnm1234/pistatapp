@@ -4,9 +4,19 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { type Course, type Project, type Document, type MediaContent, type Magazine, type Article, type ArticleContent, type Slide, type Workshop, type WorkshopSection } from "@shared/schema";
 import { Calendar, Edit, Eye, File, Folder, Image, Lock, LockOpen, MoreHorizontal, Plus, RefreshCw, Trash, Upload, Video, Copy, X, Zap, Info, Phone, Users, Building } from "lucide-react";
 import WorkshopsTab from "../components/admin/WorkshopsTab";
+import { AuthGuard } from "../components/AuthGuard";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("aboutus");
+
+  return (
+    <AuthGuard requiredRole="admin">
+      <AdminContent activeTab={activeTab} setActiveTab={setActiveTab} />
+    </AuthGuard>
+  );
+}
+
+function AdminContent({ activeTab, setActiveTab }: { activeTab: string; setActiveTab: (tab: string) => void }) {
 
   return (
     <div dir="rtl" className="min-h-screen bg-gray-50">
